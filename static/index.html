@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <h2>AI 安全助手</h2>
+        <div id="chatBox">
+            <p>你好,我是AI安全助手,请输入你的问题。</p>
+
+        </div>
+        <input type="text" id="userInput" placeholder="输入安全问题...">
+        <button onclick="sendMSG()">发送</button>
+    </div>
+
+    <script>
+        async function sendMSG() {
+            var text = document.getElementById('userInput').value;
+            if (text === '') return;
+
+            var chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = chatBox.innerHTML + '<p><b>你：</b>' + text + '</p>';
+            document.getElementById('userInput').value = '';
+
+            var response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, level: 'normal' })
+            });
+            var data = await response.json();
+            chatBox.innerHTML = chatBox.innerHTML + '<p><b>AI：</b>' + data.reply + '</p>';
+        }
+    </script>
+</body>
+
+</html>
