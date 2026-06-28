@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from openai import OpenAI
+from scanner import check_headers, summarize, check_exposed_files, check_xss, check_sqli,check_open_ports
 from fastapi.staticfiles import StaticFiles 
 
 app = FastAPI()
@@ -13,20 +14,13 @@ client = OpenAI(
 )
 
 
-@app.get("/")
-def hello():
-    return {"message": "你好，这是我的第一个后端服务"}
-
-
-@app.get("/hello/{name}")
-def say_hello(name: str):
-    return {"message": f"你好{name},欢迎来到我的后端"}
-
-
 class ChatRequest(BaseModel):
     message: str
     level: str 
 
+
+class ScanRequest(BaseModel):
+    url:str
 
 @app.post("/api/chat")
 def chat(req: ChatRequest):
@@ -43,11 +37,19 @@ def chat(req: ChatRequest):
  ai_reply = response.choices[0].message.content
  return {"reply": ai_reply}
 
-class PraticeReq(BaseModel):
-    name: str
 
 
-@app.post("/api/Test")
-def Test(req: PraticeReq):
-    n = req.name
-    return {"greeting": f"你好,{n}"}
+@app.post("/api/scan")
+def scan(req: ScanRequest):
+    target = req.url.strip()
+    if not target.startswith("http://") and not target.startswith("https://"):
+        target = "https://" + target
+
+    header_results = check_headers(target)
+    exposed_results = check_exposed_files(target)
+    stats = summarize(header_results)
+    check_xss_result = check_xss(target)
+    check_sqli_result = check_sqli(target)
+    check_port_result = check_open_ports(target)
+    return {"target": target, "findings": header_results, "exposed": exposed_results,
+             "stats": stats, "check_xss":check_xss_result, "check_sqli":check_sqli_result,"check_open_ports":check_port_result}

@@ -1,21 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>AI 安全助手</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, 'Microsoft YaHei', sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h2 { color: #1a1a1a; margin-bottom: 16px; }
+
+        #chatBox { background: white; border-radius: 8px; padding: 16px; min-height: 150px; max-height: 350px; overflow-y: auto; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        #chatBox p { margin: 6px 0; line-height: 1.6; }
+
+        .input-row { display: flex; gap: 8px; margin-bottom: 20px; }
+        .input-row input { flex: 1; padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 14px; }
+        .input-row button { padding: 8px 20px; background: #1976d2; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+        .input-row button:hover { background: #1565c0; }
+
+        #scanResults { margin-top: 20px; }
+        .card { background: white; border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .card h3 { font-size: 15px; margin-bottom: 10px; color: #333; }
+
+        .finding { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+        .finding:last-child { border-bottom: none; }
+
+        .badge { padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .badge.high { background: #ffcdd2; color: #c62828; }
+        .badge.medium { background: #fff3cd; color: #e65100; }
+        .badge.low { background: #e8f5e9; color: #2e7d32; }
+
+        .stat-row { display: flex; gap: 12px; }
+        .stat-item { padding: 4px 16px; border-radius: 16px; font-size: 14px; font-weight: bold; color: white; }
+        .stat-high { background: #c62828; }
+        .stat-medium { background: #e65100; }
+        .stat-low { background: #2e7d32; }
+
+        .result-empty { color: #999; font-size: 13px; }
+        .result-item { padding: 4px 0; font-size: 13px; word-break: break-all; }
+        .result-item code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; word-break: break-all; }
+    </style>
 </head>
 
 <body>
-    <div>
+    <div class="container">
         <h2>AI 安全助手</h2>
-        <div id="chatBox">
-            <p>你好,我是AI安全助手,请输入你的问题。</p>
 
+        <div id="chatBox">
+            <p>你好，我是 AI 安全助手，请输入你的问题。</p>
         </div>
-        <input type="text" id="userInput" placeholder="输入安全问题...">
-        <button onclick="sendMSG()">发送</button>
+
+        <div class="input-row">
+            <input type="text" id="userInput" placeholder="输入安全问题...">
+            <button onclick="sendMSG()">发送</button>
+        </div>
+
+        <div class="input-row">
+            <input type="text" id="scanUrl" placeholder="输入网址扫描，例如 httpbin.org">
+            <button onclick="runScan()">扫描</button>
+        </div>
+
+        <div id="scanResults">
+            <div class="card"><p class="result-empty">扫描结果将显示在这里</p></div>
+        </div>
     </div>
 
     <script>
@@ -34,6 +82,91 @@
             });
             var data = await response.json();
             chatBox.innerHTML = chatBox.innerHTML + '<p><b>AI：</b>' + data.reply + '</p>';
+        }
+
+        async function runScan() {
+            var url = document.getElementById('scanUrl').value;
+            if (url === '') return;
+
+            var box = document.getElementById('scanResults');
+            box.innerHTML = '<div class="card"><p>正在扫描 <b>' + url + '</b>...</p></div>';
+
+            var resp = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            });
+            var data = await resp.json();
+            var html = '<div class="card"><h3>扫描目标</h3><p style="color:#666;word-break:break-all;">' + data.target + '</p></div>';
+
+            var findings = data.findings;
+            if (typeof findings === 'string') {
+                html += '<div class="card"><h3>安全头检测</h3><p class="result-empty">' + findings + '</p></div>';
+            } else {
+                html += '<div class="card"><h3>安全头检测</h3>';
+                for (var i = 0; i < findings.length; i++) {
+                    var f = findings[i];
+                    var label = f.severity === 'high' ? '高危' : (f.severity === 'medium' ? '中危' : '低危');
+                    html += '<div class="finding"><span class="badge ' + f.severity + '">' + label + '</span><b>' + f.name + '</b> — ' + f.desc + '</div>';
+                }
+                html += '</div>';
+
+                var stats = data.stats;
+                if (stats) {
+                    html += '<div class="card"><h3>风险统计</h3><div class="stat-row">';
+                    if (stats.high) html += '<span class="stat-item stat-high">高危 ' + stats.high + '</span>';
+                    if (stats.medium) html += '<span class="stat-item stat-medium">中危 ' + stats.medium + '</span>';
+                    if (stats.low) html += '<span class="stat-item stat-low">低危 ' + stats.low + '</span>';
+                    html += '</div></div>';
+                }
+            }
+
+            html += '<div class="card"><h3>敏感文件</h3>';
+            var exposed = data.exposed;
+            if (exposed && exposed.length > 0) {
+                for (var j = 0; j < exposed.length; j++) {
+                    html += '<div class="result-item">⚠️ ' + exposed[j].url + '</div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现暴露的文件</p>';
+            }
+            html += '</div>';
+
+            html += '<div class="card"><h3>XSS 反射测试</h3>';
+            var xssData = data.check_xss;
+            if (xssData && xssData.length > 0) {
+                for (var k = 0; k < xssData.length; k++) {
+                    html += '<div class="finding"><span class="badge high">高危</span>' + xssData[k].type + ' — payload: <code>' + xssData[k].payload + '</code></div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现反射型 XSS</p>';
+            }
+            html += '</div>';
+
+            html += '<div class="card"><h3>SQL 注入检测</h3>';
+            var sqliData = data.check_sqli;
+            if (sqliData && sqliData.length > 0) {
+                for (var m = 0; m < sqliData.length; m++) {
+                    html += '<div class="finding"><span class="badge high">高危</span>' + sqliData[m].type + ' — payload: <code>' + sqliData[m].payload + '</code> — ' + sqliData[m].signature + '</div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现 SQL 注入</p>';
+            }
+            html += '</div>';
+
+            html += '<div class="card"><h3>端口扫描</h3>';
+            var portData = data.check_open_ports;
+            if (portData && portData.length > 0) {
+                for (var n = 0; n < portData.length; n++) {
+                    html += '<div class="result-item">🔓 端口 ' + portData[n].port + ' — 开放</div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现开放端口</p>';
+            }
+            html += '</div>';
+
+            box.innerHTML = html;
+            document.getElementById('scanUrl').value = '';
         }
     </script>
 </body>
