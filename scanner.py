@@ -172,11 +172,26 @@ def check_cookie_flags(target_url):
         if "HttpOnly" not in Set_Cookie:
              result.append({"flag": "HttpOnly", "status": "missing"})
         if "Secure" not in Set_Cookie:
-            result.append({"flag":"Secure", "Status":"missing"})
+            result.append({"flag":"Secure", "status":"missing"})
     except:
         pass
     return result
 
+
+def  check_redirect_trap(target_url):
+    result = []
+    redirect_params = ["redirect","url","next","goto","return"]
+    EVIL_URL = "https://evil.com"
+    for param in redirect_params:
+        full_EVIL_URL= target_url + "?" + param + "=" + EVIL_URL
+        try:
+            resp = requests.get(full_EVIL_URL,timeout=3,allow_redirects=False)
+            if resp.status_code  in [301,302,303,307,308]:
+                    if EVIL_URL in resp.headers.get("Location", ""):
+                        result.append({"param": param, "location": resp.headers.get("Location", "")})
+        except:
+            pass
+    return result
 
 
 

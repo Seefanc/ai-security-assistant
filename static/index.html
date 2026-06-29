@@ -176,6 +176,17 @@
             }
             html += '</div>';
 
+            html += '<div class="card"><h3>开放式重定向检测</h3>';
+            var redirectData = data.check_redirect_trap;
+            if (redirectData && redirectData.length > 0) {
+                for (var p = 0; p < redirectData.length; p++) {
+                    html += '<div class="finding"><span class="badge high">高危</span>参数 <b>' + redirectData[p].param + '</b> 可被重定向至 <code>' + redirectData[p].location + '</code></div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现开放式重定向</p>';
+            }
+            html += '</div>';
+
             box.innerHTML = html;
             document.getElementById('scanUrl').value = '';
         }
