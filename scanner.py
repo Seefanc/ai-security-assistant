@@ -157,12 +157,25 @@ def check_open_ports(target_url):
     for port in COMMON_PORTS:
         full_url = target_url + ":" + str(port)
         try:
-            resp = requests.get(full_url, timeout=5)
+            resp = requests.get(full_url, timeout=2)
             result.append({"port": port, "status": "open"})
         except:
             pass
     return result
     
+
+def check_cookie_flags(target_url):
+    result = []
+    try:
+        resp = requests.get(target_url,timeout=3)
+        Set_Cookie = resp.headers.get("Set-Cookie","")
+        if "HttpOnly" not in Set_Cookie:
+             result.append({"flag": "HttpOnly", "status": "missing"})
+        if "Secure" not in Set_Cookie:
+            result.append({"flag":"Secure", "Status":"missing"})
+    except:
+        pass
+    return result
 
 
 

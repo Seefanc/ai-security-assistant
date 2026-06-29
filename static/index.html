@@ -165,6 +165,17 @@
             }
             html += '</div>';
 
+            html += '<div class="card"><h3>Cookie 安全检测</h3>';
+            var cookieData = data.check_cookie_flags;
+            if (cookieData && cookieData.length > 0) {
+                for (var o = 0; o < cookieData.length; o++) {
+                    html += '<div class="finding"><span class="badge medium">中危</span>缺少 <b>' + cookieData[o].flag + '</b></div>';
+                }
+            } else {
+                html += '<p class="result-empty">Cookie 安全标记正常</p>';
+            }
+            html += '</div>';
+
             box.innerHTML = html;
             document.getElementById('scanUrl').value = '';
         }
