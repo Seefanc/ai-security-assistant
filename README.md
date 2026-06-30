@@ -12,6 +12,8 @@
 - XSS 漏洞检测
 - SQL 注入检测
 - 开放端口检测
+- Cookie 安全检测
+- 开放式重定向检测
 
 ## 运行方式
 pip install -r requirements.txt  
