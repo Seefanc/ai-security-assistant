@@ -187,6 +187,17 @@
             }
             html += '</div>';
 
+            html += '<div class="card"><h3>目录遍历检测</h3>';
+            var traversalData = data.check_path_traversal;
+            if (traversalData && traversalData.length > 0) {
+                for (var q = 0; q < traversalData.length; q++) {
+                    html += '<div class="finding"><span class="badge high">高危</span>payload: <code>' + traversalData[q].payload + '</code> — 命中: ' + traversalData[q].signature + '</div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现目录遍历漏洞</p>';
+            }
+            html += '</div>';
+
             box.innerHTML = html;
             document.getElementById('scanUrl').value = '';
         }

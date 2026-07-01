@@ -193,6 +193,36 @@ def  check_redirect_trap(target_url):
             pass
     return result
 
+TRAVERSAL_PAYLOADS = [
+    "../../../etc/passwd",
+    "../../../etc/hosts",
+    "../../../windows/win.ini",
+    "..\\..\\..\\windows\\win.ini",
+]
+
+TRAVERSAL_SIGNATURES = [
+    "root:",
+    "localhost",
+    "[extensions]",
+    "[fonts]",
+]
+
+def check_path_traversal(target_url):
+    results = []
+    for traversal in TRAVERSAL_PAYLOADS:
+        full_url = target_url + "?file=" + requests.utils.quote(traversal)
+        try:
+            resp = requests.get(full_url,timeout=3)
+            for sig in TRAVERSAL_SIGNATURES:
+                if sig.lower() in resp.text.lower():
+                 results.append({"type": "目录遍历", "severity": "high", 
+                                 "payload": traversal, "signature": sig,
+                                   "url": full_url})
+        except:
+            pass
+    return results
+
+
 
 
         
