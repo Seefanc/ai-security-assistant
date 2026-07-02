@@ -198,6 +198,17 @@
             }
             html += '</div>';
 
+            html += '<div class="card"><h3>CORS 跨域检测</h3>';
+            var corsData = data.check_cors_misconfig;
+            if (corsData && corsData.length > 0) {
+                for (var r = 0; r < corsData.length; r++) {
+                    html += '<div class="finding"><span class="badge medium">中危</span>允许所有来源访问 — <code>' + corsData[r].value + '</code></div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现 CORS 配置错误</p>';
+            }
+            html += '</div>';
+
             box.innerHTML = html;
             document.getElementById('scanUrl').value = '';
         }

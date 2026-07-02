@@ -78,6 +78,8 @@ def check_exposed_files(target_url):
 
 def summarize(findings):
     counts = {}
+    if isinstance(findings, dict):
+        return counts
     for r in findings:
         severity = r["severity"]
         if severity not in counts:
@@ -157,7 +159,7 @@ def check_open_ports(target_url):
     for port in COMMON_PORTS:
         full_url = target_url + ":" + str(port)
         try:
-            resp = requests.get(full_url, timeout=2)
+            resp = requests.get(full_url, timeout=1)
             result.append({"port": port, "status": "open"})
         except:
             pass
@@ -220,6 +222,18 @@ def check_path_traversal(target_url):
                                    "url": full_url})
         except:
             pass
+    return results
+
+
+def check_cors_misconfig(target_url):
+    results = []
+    try:
+        resp = requests.get(target_url,timeout=3)
+        cors_misconfig = resp.headers.get("Access-Control-Allow-Origin", "")
+        if "*" in cors_misconfig:
+            results.append({"type": "CORS 配置错误", "severity": "medium", "value": cors_misconfig})
+    except:
+        pass
     return results
 
 

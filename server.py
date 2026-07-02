@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from openai import OpenAI
-from scanner import check_headers, summarize, check_exposed_files, check_xss, check_sqli,check_open_ports,check_cookie_flags,check_redirect_trap,check_path_traversal
+from scanner import check_headers, summarize, check_exposed_files, check_xss, check_sqli,check_open_ports,check_cookie_flags,check_redirect_trap,check_path_traversal,check_cors_misconfig
 from fastapi.staticfiles import StaticFiles 
 
 app = FastAPI()
@@ -54,9 +54,11 @@ def scan(req: ScanRequest):
     check_cookie_result = check_cookie_flags(target)
     check_redirect_result = check_redirect_trap(target)
     check_traversal_result = check_path_traversal(target)
+    check_cors_result = check_cors_misconfig(target)
     return {"target": target, "findings": header_results, "exposed": exposed_results,
              "stats": stats, "check_xss":check_xss_result, "check_sqli":check_sqli_result,
              "check_open_ports":check_port_result,"check_cookie_flags":check_cookie_result,
              "check_redirect_trap":check_redirect_result,
-             "check_path_traversal":check_traversal_result
+             "check_path_traversal":check_traversal_result,
+             "check_cors_misconfig":check_cors_result
              }
