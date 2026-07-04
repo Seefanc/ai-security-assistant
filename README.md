@@ -14,6 +14,8 @@
 - 开放端口检测
 - Cookie 安全检测
 - 开放式重定向检测
+- 目录遍历检测
+- CORS 跨域检测
 
 ## 运行方式
 pip install -r requirements.txt  
