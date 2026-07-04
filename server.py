@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from openai import OpenAI
-from scanner import check_headers, summarize, check_exposed_files, check_xss, check_sqli,check_open_ports,check_cookie_flags,check_redirect_trap,check_path_traversal,check_cors_misconfig
+from scanner import check_headers, summarize, check_exposed_files, check_xss,check_sqli,check_open_ports,check_cookie_flags,check_redirect_trap,check_path_traversal,check_cors_misconfig 
 from fastapi.staticfiles import StaticFiles 
+import asyncio
 
 app = FastAPI()
 
@@ -40,21 +41,28 @@ def chat(req: ChatRequest):
 
 
 @app.post("/api/scan")
-def scan(req: ScanRequest):
+async def scan(req: ScanRequest):
     target = req.url.strip()
     if not target.startswith("http://") and not target.startswith("https://"):
         target = "https://" + target
 
-    header_results = check_headers(target)
-    exposed_results = check_exposed_files(target)
+    t1 = asyncio.to_thread(check_headers, target)
+    t2 = asyncio.to_thread(check_exposed_files, target)
+    t3 = asyncio.to_thread(check_xss, target)
+    t4 = asyncio.to_thread(check_sqli, target)
+    t5 = asyncio.to_thread(check_open_ports, target)
+    t6 = asyncio.to_thread(check_cookie_flags, target)
+    t7 = asyncio.to_thread(check_redirect_trap, target)
+    t8 = asyncio.to_thread(check_path_traversal, target)
+    t9 = asyncio.to_thread(check_cors_misconfig, target)
+
+    header_results, exposed_results, check_xss_result, check_sqli_result, \
+    check_port_result, check_cookie_result, check_redirect_result, \
+    check_traversal_result, check_cors_result = await asyncio.gather(
+        t1, t2, t3, t4, t5, t6, t7, t8, t9
+    )
+
     stats = summarize(header_results)
-    check_xss_result = check_xss(target)
-    check_sqli_result = check_sqli(target)
-    check_port_result = check_open_ports(target)
-    check_cookie_result = check_cookie_flags(target)
-    check_redirect_result = check_redirect_trap(target)
-    check_traversal_result = check_path_traversal(target)
-    check_cors_result = check_cors_misconfig(target)
     return {"target": target, "findings": header_results, "exposed": exposed_results,
              "stats": stats, "check_xss":check_xss_result, "check_sqli":check_sqli_result,
              "check_open_ports":check_port_result,"check_cookie_flags":check_cookie_result,
