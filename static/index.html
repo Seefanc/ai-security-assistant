@@ -37,6 +37,10 @@
         .stat-medium { background: #e65100; }
         .stat-low { background: #2e7d32; }
 
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #ddd; border-top-color: #1976d2; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .scanning { text-align: center; padding: 20px; color: #666; }
+
         .result-empty { color: #999; font-size: 13px; }
         .result-item { padding: 4px 0; font-size: 13px; word-break: break-all; }
         .result-item code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; word-break: break-all; }
@@ -89,7 +93,7 @@
             if (url === '') return;
 
             var box = document.getElementById('scanResults');
-            box.innerHTML = '<div class="card"><p>正在扫描 <b>' + url + '</b>...</p></div>';
+            box.innerHTML = '<div class="card scanning"><span class="spinner"></span>正在扫描 <b>' + url + '</b>...</div>';
 
             var resp = await fetch('/api/scan', {
                 method: 'POST',
