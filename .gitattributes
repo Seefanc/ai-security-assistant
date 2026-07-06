@@ -1,2 +1,2 @@
-*.png binary
-*.jpg binary
+*.png binary -text
+*.jpg binary -text
