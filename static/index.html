@@ -220,6 +220,20 @@
             }
             html += '</div>';
 
+            var timeouts = [];
+            if (header_results && header_results._timeout) timeouts.push(header_results.module);
+            if (exposed_results && exposed_results._timeout) timeouts.push(exposed_results.module);
+            if (check_xss_result && check_xss_result._timeout) timeouts.push(check_xss_result.module);
+            if (check_sqli_result && check_sqli_result._timeout) timeouts.push(check_sqli_result.module);
+            if (check_port_result && check_port_result._timeout) timeouts.push(check_port_result.module);
+            if (check_cookie_result && check_cookie_result._timeout) timeouts.push(check_cookie_result.module);
+            if (check_redirect_result && check_redirect_result._timeout) timeouts.push(check_redirect_result.module);
+            if (check_traversal_result && check_traversal_result._timeout) timeouts.push(check_traversal_result.module);
+            if (check_cors_result && check_cors_result._timeout) timeouts.push(check_cors_result.module);
+            if (timeouts.length > 0) {
+                html = '<div class="card" style="border-left:3px solid #e65100;"><p>⚠️ 检测超时：' + timeouts.join(', ') + '</p></div>' + html;
+            }
+
             box.innerHTML = html;
             document.getElementById('scanUrl').value = '';
         }
