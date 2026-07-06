@@ -23,4 +23,4 @@ uvicorn server:app --reload
 打开 http://127.0.0.1:8000/static/index.html
 
 ## 截图
-![](screenshot.png)
+![](screenshot-new.png)
