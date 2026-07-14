@@ -4,7 +4,7 @@ from openai import OpenAI
 from scanner import check_headers, summarize, check_exposed_files, \
                     check_xss,check_sqli,check_open_ports,\
                     check_cookie_flags,check_redirect_trap,\
-                    check_path_traversal,check_cors_misconfig 
+                    check_path_traversal,check_cors_misconfig,check_option
 from fastapi.staticfiles import StaticFiles 
 import asyncio
 
@@ -63,11 +63,12 @@ async def scan(req: ScanRequest):
     t7 = run("redirect", check_redirect_trap)
     t8 = run("traversal", check_path_traversal)
     t9 = run("cors", check_cors_misconfig)
+    t10 = run("options", check_option)
 
     header_results, exposed_results, check_xss_result, check_sqli_result, \
     check_port_result, check_cookie_result, check_redirect_result, \
-    check_traversal_result, check_cors_result = await asyncio.gather(
-        t1, t2, t3, t4, t5, t6, t7, t8, t9
+    check_traversal_result, check_cors_result, check_option_result = await asyncio.gather(
+        t1, t2, t3, t4, t5, t6, t7, t8, t9, t10
     )
     stats = summarize(header_results)
     return {"target": target, "findings": header_results, "exposed": exposed_results,
@@ -75,5 +76,6 @@ async def scan(req: ScanRequest):
              "check_open_ports":check_port_result,"check_cookie_flags":check_cookie_result,
              "check_redirect_trap":check_redirect_result,
              "check_path_traversal":check_traversal_result,
-             "check_cors_misconfig":check_cors_result
+             "check_cors_misconfig":check_cors_result,
+             "check_option":check_option_result
              }

@@ -71,8 +71,11 @@ def check_exposed_files(target_url):
             if resp.status_code == 200:
                 findings.append({"path": path, "url": full_url})
         except:
-            pass
+            pass 
     return findings
+    
+           
+
 
 
 
@@ -237,6 +240,15 @@ def check_cors_misconfig(target_url):
     return results
 
 
-
+def check_option(target_url):
+     results = []
+     try:
+         resp = requests.options(target_url, timeout=5)
+         option =  resp.headers.get("Allow"," ")
+         if "PUT" in option or "DELETE" in option:
+             results.append({"type":"HTTP","severity":"medium","value":option})
+     except:
+        pass
+     return results
 
         

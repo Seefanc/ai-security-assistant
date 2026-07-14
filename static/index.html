@@ -48,12 +48,30 @@
         .result-empty { color: #999; font-size: 13px; }
         .result-item { padding: 4px 0; font-size: 13px; word-break: break-all; }
         .result-item code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; word-break: break-all; }
+
+        [data-theme="dark"] body { background: #0d1117; }
+        [data-theme="dark"] h2 { color: #e6edf3; }
+        [data-theme="dark"] #chatBox { background: #161b22; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        [data-theme="dark"] .card { background: #161b22; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        [data-theme="dark"] .card h3 { color: #e6edf3; }
+        [data-theme="dark"] .finding { border-bottom-color: #21262d; }
+        [data-theme="dark"] .input-row input { background: #0d1117; border-color: #30363d; color: #e6edf3; }
+        [data-theme="dark"] .result-empty { color: #8b949e; }
+        [data-theme="dark"] .result-item code { background: #21262d; }
+        [data-theme="dark"] .elapsed { color: #8b949e; }
+        [data-theme="dark"] .scanning { color: #8b949e; }
+        [data-theme="dark"] .badge.low { background: #1b3a1b; color: #7cba7c; }
+        [data-theme="dark"] .badge.medium { background: #3d2900; color: #d4a843; }
+        [data-theme="dark"] .badge.high { background: #3d1515; color: #e07373; }
+
+        .theme-btn { position: fixed; top: 16px; right: 20px; background: none; border: 1px solid #999; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; line-height: 34px; text-align: center; padding: 0; }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h2>AI 安全助手</h2>
+        <button class="theme-btn" onclick="toggleTheme()" title="切换暗色">🌙</button>
 
         <div id="chatBox">
             <p>你好，我是 AI 安全助手，请输入你的问题。</p>
@@ -220,6 +238,17 @@
             }
             html += '</div>';
 
+            html += '<div class="card"><h3>HTTP 方法检测</h3>';
+            var optionData = data.check_option;
+            if (optionData && optionData.length > 0) {
+                for (var s = 0; s < optionData.length; s++) {
+                    html += '<div class="finding"><span class="badge medium">中危</span>允许危险方法 — <code>' + optionData[s].value + '</code></div>';
+                }
+            } else {
+                html += '<p class="result-empty">未发现危险 HTTP 方法</p>';
+            }
+            html += '</div>';
+
             var timeouts = [];
             if (header_results && header_results._timeout) timeouts.push(header_results.module);
             if (exposed_results && exposed_results._timeout) timeouts.push(exposed_results.module);
@@ -230,12 +259,25 @@
             if (check_redirect_result && check_redirect_result._timeout) timeouts.push(check_redirect_result.module);
             if (check_traversal_result && check_traversal_result._timeout) timeouts.push(check_traversal_result.module);
             if (check_cors_result && check_cors_result._timeout) timeouts.push(check_cors_result.module);
+            if (check_option_result && check_option_result._timeout) timeouts.push(check_option_result.module);
             if (timeouts.length > 0) {
                 html = '<div class="card" style="border-left:3px solid #e65100;"><p>⚠️ 检测超时：' + timeouts.join(', ') + '</p></div>' + html;
             }
 
             box.innerHTML = html;
             document.getElementById('scanUrl').value = '';
+        }
+        function toggleTheme() {
+            var html = document.documentElement;
+            var btn = document.querySelector('.theme-btn');
+            var current = html.getAttribute('data-theme');
+            if (current === 'dark') {
+                html.removeAttribute('data-theme');
+                btn.textContent = '🌙';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.textContent = '☀️';
+            }
         }
     </script>
 </body>
