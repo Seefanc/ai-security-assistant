@@ -96,12 +96,19 @@
     </div>
 
     <script>
+        function esc(s) {
+            if (s === null || s === undefined) return '';
+            return String(s).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
         async function sendMSG() {
             var text = document.getElementById('userInput').value;
             if (text === '') return;
 
             var chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = chatBox.innerHTML + '<p><b>你：</b>' + text + '</p>';
+            chatBox.innerHTML = chatBox.innerHTML + '<p><b>你：</b>' + esc(text) + '</p>';
             document.getElementById('userInput').value = '';
 
             var response = await fetch('/api/chat', {
@@ -110,7 +117,7 @@
                 body: JSON.stringify({ message: text, level: 'normal' })
             });
             var data = await response.json();
-            chatBox.innerHTML = chatBox.innerHTML + '<p><b>AI：</b>' + data.reply + '</p>';
+            chatBox.innerHTML = chatBox.innerHTML + '<p><b>AI：</b>' + esc(data.reply) + '</p>';
         }
 
         async function runScan() {
@@ -118,7 +125,7 @@
             if (url === '') return;
 
             var box = document.getElementById('scanResults');
-            box.innerHTML = '<div class="card scanning"><span class="spinner"></span>正在扫描 <b>' + url + '</b>...<div class="progress-wrap"><div class="progress-fill"></div></div></div>';
+            box.innerHTML = '<div class="card scanning"><span class="spinner"></span>正在扫描 <b>' + esc(url) + '</b>...<div class="progress-wrap"><div class="progress-fill"></div></div></div>';
 
             var start = Date.now();
             var resp = await fetch('/api/scan', {
@@ -130,35 +137,36 @@
             window.lastScan = data;
             var elapsed = ((Date.now() - start) / 1000).toFixed(1);
             var html = '<div class="elapsed">检测耗时 ' + elapsed + ' 秒 &nbsp;<button class="report-btn" onclick="downloadReport()">下载报告</button></div>';
-            html += '<div class="card"><h3>扫描目标</h3><p style="color:#666;word-break:break-all;">' + data.target + '</p></div>';
+            html += '<div class="card"><h3>扫描目标</h3><p style="color:#666;word-break:break-all;">' + esc(data.target) + '</p></div>';
 
             var findings = data.findings;
-            if (typeof findings === 'string') {
-                html += '<div class="card"><h3>安全头检测</h3><p class="result-empty">' + findings + '</p></div>';
-            } else {
+            if (Array.isArray(findings)) {
                 html += '<div class="card"><h3>安全头检测</h3>';
                 for (var i = 0; i < findings.length; i++) {
                     var f = findings[i];
                     var label = f.severity === 'high' ? '高危' : (f.severity === 'medium' ? '中危' : '低危');
-                    html += '<div class="finding"><span class="badge ' + f.severity + '">' + label + '</span><b>' + f.name + '</b> — ' + f.desc + '</div>';
+                    html += '<div class="finding"><span class="badge ' + esc(f.severity) + '">' + label + '</span><b>' + esc(f.name) + '</b> — ' + esc(f.desc) + '</div>';
                 }
                 html += '</div>';
 
                 var stats = data.stats;
-                if (stats) {
+                if (stats && (stats.high || stats.medium || stats.low)) {
                     html += '<div class="card"><h3>风险统计</h3><div class="stat-row">';
                     if (stats.high) html += '<span class="stat-item stat-high">高危 ' + stats.high + '</span>';
                     if (stats.medium) html += '<span class="stat-item stat-medium">中危 ' + stats.medium + '</span>';
                     if (stats.low) html += '<span class="stat-item stat-low">低危 ' + stats.low + '</span>';
                     html += '</div></div>';
                 }
+            } else {
+                var errMsg = findings && findings.error ? findings.error : '检测失败';
+                html += '<div class="card"><h3>安全头检测</h3><p class="result-empty">检测失败：' + esc(errMsg) + '</p></div>';
             }
 
             html += '<div class="card"><h3>敏感文件</h3>';
             var exposed = data.exposed;
             if (exposed && exposed.length > 0) {
                 for (var j = 0; j < exposed.length; j++) {
-                    html += '<div class="result-item">⚠️ ' + exposed[j].url + '</div>';
+                    html += '<div class="result-item">⚠️ ' + esc(exposed[j].url) + '</div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现暴露的文件</p>';
@@ -169,7 +177,7 @@
             var xssData = data.check_xss;
             if (xssData && xssData.length > 0) {
                 for (var k = 0; k < xssData.length; k++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>' + xssData[k].type + ' — payload: <code>' + xssData[k].payload + '</code></div>';
+                    html += '<div class="finding"><span class="badge high">高危</span>' + esc(xssData[k].type) + ' — payload: <code>' + esc(xssData[k].payload) + '</code></div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现反射型 XSS</p>';
@@ -180,7 +188,7 @@
             var sqliData = data.check_sqli;
             if (sqliData && sqliData.length > 0) {
                 for (var m = 0; m < sqliData.length; m++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>' + sqliData[m].type + ' — payload: <code>' + sqliData[m].payload + '</code> — ' + sqliData[m].signature + '</div>';
+                    html += '<div class="finding"><span class="badge high">高危</span>' + esc(sqliData[m].type) + ' — payload: <code>' + esc(sqliData[m].payload) + '</code> — ' + esc(sqliData[m].signature) + '</div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现 SQL 注入</p>';
@@ -191,7 +199,7 @@
             var portData = data.check_open_ports;
             if (portData && portData.length > 0) {
                 for (var n = 0; n < portData.length; n++) {
-                    html += '<div class="result-item">🔓 端口 ' + portData[n].port + ' — 开放</div>';
+                    html += '<div class="result-item">🔓 端口 ' + esc(portData[n].port) + ' — 开放</div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现开放端口</p>';
@@ -202,7 +210,7 @@
             var cookieData = data.check_cookie_flags;
             if (cookieData && cookieData.length > 0) {
                 for (var o = 0; o < cookieData.length; o++) {
-                    html += '<div class="finding"><span class="badge medium">中危</span>缺少 <b>' + cookieData[o].flag + '</b></div>';
+                    html += '<div class="finding"><span class="badge medium">中危</span>缺少 <b>' + esc(cookieData[o].flag) + '</b></div>';
                 }
             } else {
                 html += '<p class="result-empty">Cookie 安全标记正常</p>';
@@ -213,7 +221,7 @@
             var redirectData = data.check_redirect_trap;
             if (redirectData && redirectData.length > 0) {
                 for (var p = 0; p < redirectData.length; p++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>参数 <b>' + redirectData[p].param + '</b> 可被重定向至 <code>' + redirectData[p].location + '</code></div>';
+                    html += '<div class="finding"><span class="badge high">高危</span>参数 <b>' + esc(redirectData[p].param) + '</b> 可被重定向至 <code>' + esc(redirectData[p].location) + '</code></div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现开放式重定向</p>';
@@ -224,7 +232,7 @@
             var traversalData = data.check_path_traversal;
             if (traversalData && traversalData.length > 0) {
                 for (var q = 0; q < traversalData.length; q++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>payload: <code>' + traversalData[q].payload + '</code> — 命中: ' + traversalData[q].signature + '</div>';
+                    html += '<div class="finding"><span class="badge high">高危</span>payload: <code>' + esc(traversalData[q].payload) + '</code> — 命中: ' + esc(traversalData[q].signature) + '</div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现目录遍历漏洞</p>';
@@ -235,7 +243,7 @@
             var corsData = data.check_cors_misconfig;
             if (corsData && corsData.length > 0) {
                 for (var r = 0; r < corsData.length; r++) {
-                    html += '<div class="finding"><span class="badge medium">中危</span>允许所有来源访问 — <code>' + corsData[r].value + '</code></div>';
+                    html += '<div class="finding"><span class="badge medium">中危</span>允许所有来源访问 — <code>' + esc(corsData[r].value) + '</code></div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现 CORS 配置错误</p>';
@@ -246,7 +254,7 @@
             var optionData = data.check_option;
             if (optionData && optionData.length > 0) {
                 for (var s = 0; s < optionData.length; s++) {
-                    html += '<div class="finding"><span class="badge medium">中危</span>允许危险方法 — <code>' + optionData[s].value + '</code></div>';
+                    html += '<div class="finding"><span class="badge medium">中危</span>允许危险方法 — <code>' + esc(optionData[s].value) + '</code></div>';
                 }
             } else {
                 html += '<p class="result-empty">未发现危险 HTTP 方法</p>';
@@ -265,7 +273,7 @@
             if (data.check_cors_misconfig && data.check_cors_misconfig._timeout) timeouts.push(data.check_cors_misconfig.module);
             if (data.check_option && data.check_option._timeout) timeouts.push(data.check_option.module);
             if (timeouts.length > 0) {
-                html = '<div class="card" style="border-left:3px solid #e65100;"><p>⚠️ 检测超时：' + timeouts.join(', ') + '</p></div>' + html;
+                html = '<div class="card" style="border-left:3px solid #e65100;"><p>⚠️ 检测超时：' + esc(timeouts.join(', ')) + '</p></div>' + html;
             }
 
             box.innerHTML = html;
