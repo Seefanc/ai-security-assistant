@@ -5,15 +5,19 @@ from scanner import check_headers, summarize, check_exposed_files, \
                     check_xss,check_sqli,check_open_ports,\
                     check_cookie_flags,check_redirect_trap,\
                     check_path_traversal,check_cors_misconfig,check_option
-from fastapi.staticfiles import StaticFiles 
+from fastapi.staticfiles import StaticFiles
 import asyncio
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 client = OpenAI(
-    api_key="sk-40472ccecd2a43c89c30b29c28a91e6e",
+    api_key=os.environ.get("DEEPSEEK_API_KEY"),
     base_url="https://api.deepseek.com"
 )
 
