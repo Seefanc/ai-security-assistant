@@ -44,6 +44,8 @@
         .progress-fill { height: 100%; background: #1976d2; border-radius: 2px; animation: fillBar 6s ease-out forwards; }
         @keyframes fillBar { from { width: 0%; } to { width: 92%; } }
         .elapsed { text-align: center; color: #999; font-size: 12px; margin-bottom: 8px; }
+        .report-btn { background: #1976d2; color: white; border: none; border-radius: 4px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
+        .report-btn:hover { background: #1565c0; }
 
         .result-empty { color: #999; font-size: 13px; }
         .result-item { padding: 4px 0; font-size: 13px; word-break: break-all; }
@@ -124,8 +126,9 @@
                 body: JSON.stringify({ url: url })
             });
             var data = await resp.json();
+            window.lastScan = data;
             var elapsed = ((Date.now() - start) / 1000).toFixed(1);
-            var html = '<div class="elapsed">检测耗时 ' + elapsed + ' 秒</div>';
+            var html = '<div class="elapsed">检测耗时 ' + elapsed + ' 秒 &nbsp;<button class="report-btn" onclick="downloadReport()">下载报告</button></div>';
             html += '<div class="card"><h3>扫描目标</h3><p style="color:#666;word-break:break-all;">' + data.target + '</p></div>';
 
             var findings = data.findings;
@@ -250,22 +253,32 @@
             html += '</div>';
 
             var timeouts = [];
-            if (header_results && header_results._timeout) timeouts.push(header_results.module);
-            if (exposed_results && exposed_results._timeout) timeouts.push(exposed_results.module);
-            if (check_xss_result && check_xss_result._timeout) timeouts.push(check_xss_result.module);
-            if (check_sqli_result && check_sqli_result._timeout) timeouts.push(check_sqli_result.module);
-            if (check_port_result && check_port_result._timeout) timeouts.push(check_port_result.module);
-            if (check_cookie_result && check_cookie_result._timeout) timeouts.push(check_cookie_result.module);
-            if (check_redirect_result && check_redirect_result._timeout) timeouts.push(check_redirect_result.module);
-            if (check_traversal_result && check_traversal_result._timeout) timeouts.push(check_traversal_result.module);
-            if (check_cors_result && check_cors_result._timeout) timeouts.push(check_cors_result.module);
-            if (check_option_result && check_option_result._timeout) timeouts.push(check_option_result.module);
+            if (data.findings && data.findings._timeout) timeouts.push(data.findings.module);
+            if (data.exposed && data.exposed._timeout) timeouts.push(data.exposed.module);
+            if (data.check_xss && data.check_xss._timeout) timeouts.push(data.check_xss.module);
+            if (data.check_sqli && data.check_sqli._timeout) timeouts.push(data.check_sqli.module);
+            if (data.check_open_ports && data.check_open_ports._timeout) timeouts.push(data.check_open_ports.module);
+            if (data.check_cookie_flags && data.check_cookie_flags._timeout) timeouts.push(data.check_cookie_flags.module);
+            if (data.check_redirect_trap && data.check_redirect_trap._timeout) timeouts.push(data.check_redirect_trap.module);
+            if (data.check_path_traversal && data.check_path_traversal._timeout) timeouts.push(data.check_path_traversal.module);
+            if (data.check_cors_misconfig && data.check_cors_misconfig._timeout) timeouts.push(data.check_cors_misconfig.module);
+            if (data.check_option && data.check_option._timeout) timeouts.push(data.check_option.module);
             if (timeouts.length > 0) {
                 html = '<div class="card" style="border-left:3px solid #e65100;"><p>⚠️ 检测超时：' + timeouts.join(', ') + '</p></div>' + html;
             }
 
             box.innerHTML = html;
             document.getElementById('scanUrl').value = '';
+        }
+        function downloadReport() {
+            if (!window.lastScan) return;
+            var text = JSON.stringify(window.lastScan, null, 2);
+            var blob = new Blob([text], { type: 'application/json' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'scan-report-' + Date.now() + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
         }
         function toggleTheme() {
             var html = document.documentElement;
