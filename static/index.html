@@ -10,39 +10,49 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, 'Microsoft YaHei', sans-serif; background: #f0f2f5; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
-        h2 { color: #1a1a1a; margin-bottom: 16px; }
+        h2 { color: #1a1a1a; margin-bottom: 4px; }
+        .subtitle { color: #888; font-size: 13px; margin-bottom: 16px; }
 
         #chatBox { background: white; border-radius: 8px; padding: 16px; min-height: 150px; max-height: 350px; overflow-y: auto; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        #chatBox p { margin: 6px 0; line-height: 1.6; }
+        #chatBox p { margin: 6px 0; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 
         .input-row { display: flex; gap: 8px; margin-bottom: 20px; }
         .input-row input { flex: 1; padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 14px; }
+        .input-row input:focus { outline: 2px solid #90caf9; border-color: #1976d2; }
         .input-row button { padding: 8px 20px; background: #1976d2; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
-        .input-row button:hover { background: #1565c0; }
+        .input-row button:hover:not(:disabled) { background: #1565c0; }
+        .input-row button:disabled { background: #b0bec5; cursor: progress; }
 
         #scanResults { margin-top: 20px; }
         .card { background: white; border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-        .card h3 { font-size: 15px; margin-bottom: 10px; color: #333; }
+        .card h3 { font-size: 15px; margin-bottom: 10px; color: #333; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .card .meta { margin-left: auto; font-size: 11px; color: #999; font-weight: normal; }
 
-        .finding { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+        .finding { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; flex-wrap: wrap; }
         .finding:last-child { border-bottom: none; }
+        .finding .fix { color: #666; font-size: 12px; }
 
         .badge { padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; white-space: nowrap; }
         .badge.high { background: #ffcdd2; color: #c62828; }
         .badge.medium { background: #fff3cd; color: #e65100; }
         .badge.low { background: #e8f5e9; color: #2e7d32; }
+        .chip { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: normal; }
+        .chip.ok { background: #e8f5e9; color: #2e7d32; }
+        .chip.timeout { background: #fff3cd; color: #e65100; }
+        .chip.error { background: #ffebee; color: #c62828; }
 
-        .stat-row { display: flex; gap: 12px; }
+        .stat-row { display: flex; gap: 12px; flex-wrap: wrap; }
         .stat-item { padding: 4px 16px; border-radius: 16px; font-size: 14px; font-weight: bold; color: white; }
         .stat-high { background: #c62828; }
         .stat-medium { background: #e65100; }
         .stat-low { background: #2e7d32; }
+        .stat-neutral { background: #607d8b; }
 
         .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #ddd; border-top-color: #1976d2; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .scanning { text-align: center; padding: 20px; color: #666; }
         .progress-wrap { width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 12px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #1976d2; border-radius: 2px; animation: fillBar 6s ease-out forwards; }
+        .progress-fill { height: 100%; background: #1976d2; border-radius: 2px; animation: fillBar 9s ease-out forwards; }
         @keyframes fillBar { from { width: 0%; } to { width: 92%; } }
         .elapsed { text-align: center; color: #999; font-size: 12px; margin-bottom: 8px; }
         .report-btn { background: #1976d2; color: white; border: none; border-radius: 4px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
@@ -50,22 +60,30 @@
 
         .result-empty { color: #999; font-size: 13px; }
         .result-item { padding: 4px 0; font-size: 13px; word-break: break-all; }
-        .result-item code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; word-break: break-all; }
+        .result-item code, .finding code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; word-break: break-all; }
+        .banner { border-left: 3px solid #e65100; }
+        .banner p { font-size: 13px; color: #b23c00; }
 
         [data-theme="dark"] body { background: #0d1117; }
         [data-theme="dark"] h2 { color: #e6edf3; }
+        [data-theme="dark"] .subtitle { color: #8b949e; }
         [data-theme="dark"] #chatBox { background: #161b22; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         [data-theme="dark"] .card { background: #161b22; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         [data-theme="dark"] .card h3 { color: #e6edf3; }
         [data-theme="dark"] .finding { border-bottom-color: #21262d; }
+        [data-theme="dark"] .finding .fix { color: #8b949e; }
         [data-theme="dark"] .input-row input { background: #0d1117; border-color: #30363d; color: #e6edf3; }
         [data-theme="dark"] .result-empty { color: #8b949e; }
-        [data-theme="dark"] .result-item code { background: #21262d; }
+        [data-theme="dark"] .result-item code, [data-theme="dark"] .finding code { background: #21262d; }
         [data-theme="dark"] .elapsed { color: #8b949e; }
         [data-theme="dark"] .scanning { color: #8b949e; }
         [data-theme="dark"] .badge.low { background: #1b3a1b; color: #7cba7c; }
         [data-theme="dark"] .badge.medium { background: #3d2900; color: #d4a843; }
         [data-theme="dark"] .badge.high { background: #3d1515; color: #e07373; }
+        [data-theme="dark"] .chip.ok { background: #1b3a1b; color: #7cba7c; }
+        [data-theme="dark"] .chip.timeout { background: #3d2900; color: #d4a843; }
+        [data-theme="dark"] .chip.error { background: #3d1515; color: #e07373; }
+        [data-theme="dark"] .banner p { color: #e0a060; }
 
         .theme-btn { position: fixed; top: 16px; right: 20px; background: none; border: 1px solid #999; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; line-height: 34px; text-align: center; padding: 0; }
     </style>
@@ -74,6 +92,7 @@
 <body>
     <div class="container">
         <h2>AI 安全助手</h2>
+        <p class="subtitle">Web 安全扫描 + AI 问答 · 10 个检测模块 · 请仅扫描你有权测试的站点</p>
         <button class="theme-btn" onclick="toggleTheme()" title="切换暗色">🌙</button>
 
         <div id="chatBox">
@@ -81,13 +100,13 @@
         </div>
 
         <div class="input-row">
-            <input type="text" id="userInput" placeholder="输入安全问题...">
-            <button onclick="sendMSG()">发送</button>
+            <input type="text" id="userInput" placeholder="输入安全问题，例如：CSP 应该怎么配？" maxlength="2000">
+            <button id="chatBtn" onclick="sendMSG()">发送</button>
         </div>
 
         <div class="input-row">
-            <input type="text" id="scanUrl" placeholder="输入网址扫描，例如 httpbin.org">
-            <button onclick="runScan()">扫描</button>
+            <input type="text" id="scanUrl" placeholder="输入网址扫描，例如 httpbin.org" maxlength="2048">
+            <button id="scanBtn" onclick="runScan()">扫描</button>
         </div>
 
         <div id="scanResults">
@@ -96,189 +115,214 @@
     </div>
 
     <script>
+        'use strict';
+
+        // 所有来自后端的字符串都必须经过 esc 再进 innerHTML
         function esc(s) {
             if (s === null || s === undefined) return '';
-            return String(s).replace(/[&<>"']/g, function(c) {
+            return String(s).replace(/[&<>"']/g, function (c) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
             });
         }
 
+        // class 名走白名单，避免后端字段直接拼进 HTML 属性
+        function severityClass(sev) {
+            return sev === 'high' ? 'high' : (sev === 'medium' ? 'medium' : 'low');
+        }
+
+        function severityLabel(sev) {
+            return sev === 'high' ? '高危' : (sev === 'medium' ? '中危' : '低危');
+        }
+
+        function badge(sev) {
+            var cls = severityClass(sev);
+            return '<span class="badge ' + cls + '">' + severityLabel(sev) + '</span>';
+        }
+
+        // 每个模块的条目渲染器：只负责 items 内部，卡片外壳统一生成
+        var RENDERERS = {
+            headers: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) +
+                        '<b>' + esc(f.name) + '</b><span>' + esc(f.desc) + '</span>' +
+                        '<span class="fix">建议：' + esc(f.fix) + '</span></div>';
+                }).join('');
+            },
+            exposed: function (items) {
+                return items.map(function (f) {
+                    return '<div class="result-item">⚠️ <code>' + esc(f.path) + '</code> ' + esc(f.desc) +
+                        '<br><span class="result-empty">' + esc(f.url) + '</span></div>';
+                }).join('');
+            },
+            xss: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) + esc(f.type) +
+                        ' — payload: <code>' + esc(f.payload) + '</code></div>';
+                }).join('');
+            },
+            sqli: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) + esc(f.type) +
+                        ' — payload: <code>' + esc(f.payload) + '</code> — 命中: ' + esc(f.signature) + '</div>';
+                }).join('');
+            },
+            ports: function (items) {
+                return items.map(function (f) {
+                    return '<div class="result-item">🔓 端口 ' + esc(f.port) + ' 开放</div>';
+                }).join('');
+            },
+            cookie: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) + 'Cookie <code>' + esc(f.cookie) +
+                        '</code> 缺少 <b>' + esc(f.flag) + '</b><span class="fix">' + esc(f.desc) + '</span></div>';
+                }).join('');
+            },
+            redirect: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) + '参数 <b>' + esc(f.param) +
+                        '</b> 可跳转到 <code>' + esc(f.location) + '</code></div>';
+                }).join('');
+            },
+            traversal: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) + 'payload: <code>' + esc(f.payload) +
+                        '</code> — 命中特征: ' + esc(f.signature) + '</div>';
+                }).join('');
+            },
+            cors: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) + esc(f.type) +
+                        ' — <code>' + esc(f.value) + '</code></div>';
+                }).join('');
+            },
+            option: function (items) {
+                return items.map(function (f) {
+                    return '<div class="finding">' + badge(f.severity) + esc(f.type) +
+                        ' — <code>' + esc(f.value) + '</code></div>';
+                }).join('');
+            }
+        };
+
+        var STATUS_LABEL = { ok: '完成', timeout: '超时', error: '失败' };
+
+        function renderModule(mod, emptyText) {
+            var html = '<div class="card"><h3>' + esc(mod.title) +
+                '<span class="chip ' + esc(mod.status) + '">' + esc(STATUS_LABEL[mod.status] || mod.status) + '</span>' +
+                '<span class="meta">' + esc(mod.elapsed_ms) + ' ms</span></h3>';
+
+            if (mod.status !== 'ok') {
+                var hint = mod.status === 'timeout'
+                    ? '该模块在限定时间内没有完成，结果未知（不代表安全）。'
+                    : '该模块请求失败，结果未知（不代表安全）。';
+                html += '<p class="result-empty">' + hint + ' 原因：' + esc(mod.error) + '</p>';
+            } else if (mod.items.length === 0) {
+                html += '<p class="result-empty">' + esc(emptyText || '未发现问题') + '</p>';
+            } else {
+                var renderer = RENDERERS[mod.key];
+                html += renderer ? renderer(mod.items) : '<pre>' + esc(JSON.stringify(mod.items, null, 2)) + '</pre>';
+            }
+            return html + '</div>';
+        }
+
+        function renderSummary(data) {
+            var stats = data.stats || {};
+            var html = '<div class="elapsed">检测耗时 ' + (data.elapsed_ms / 1000).toFixed(1) +
+                ' 秒 &nbsp;<button class="report-btn" onclick="downloadReport()">下载报告</button></div>';
+            html += '<div class="card"><h3>扫描目标<span class="meta">' + esc(data.scanned_at) + '</span></h3>' +
+                '<p style="color:#666;word-break:break-all;font-size:13px;">' + esc(data.target) + '</p>' +
+                '<div class="stat-row" style="margin-top:10px;">';
+
+            if (stats.high) html += '<span class="stat-item stat-high">高危 ' + esc(stats.high) + '</span>';
+            if (stats.medium) html += '<span class="stat-item stat-medium">中危 ' + esc(stats.medium) + '</span>';
+            if (stats.low) html += '<span class="stat-item stat-low">低危 ' + esc(stats.low) + '</span>';
+            if (data.summary) {
+                var total = Object.keys(data.modules || {}).length;
+                html += '<span class="stat-item stat-neutral">模块 ' + esc(data.summary.ok) + '/' + esc(total) + ' 正常</span>';
+            }
+            html += '</div></div>';
+
+            var failed = [];
+            if (data.summary && data.summary.timeout) failed.push(data.summary.timeout + ' 个模块超时');
+            if (data.summary && data.summary.error) failed.push(data.summary.error + ' 个模块失败');
+            if (failed.length) {
+                html += '<div class="card banner"><p>⚠️ ' + esc(failed.join('、')) +
+                    '：对应卡片显示"结果未知"，请勿据此判断站点安全。</p></div>';
+            }
+            return html;
+        }
+
         async function sendMSG() {
-            var text = document.getElementById('userInput').value;
+            var input = document.getElementById('userInput');
+            var btn = document.getElementById('chatBtn');
+            var text = input.value.trim();
             if (text === '') return;
 
             var chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = chatBox.innerHTML + '<p><b>你：</b>' + esc(text) + '</p>';
-            document.getElementById('userInput').value = '';
+            chatBox.insertAdjacentHTML('beforeend', '<p><b>你：</b>' + esc(text) + '</p>');
+            input.value = '';
+            btn.disabled = true;
 
-            var response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, level: 'normal' })
-            });
-            var data = await response.json();
-            chatBox.innerHTML = chatBox.innerHTML + '<p><b>AI：</b>' + esc(data.reply) + '</p>';
+            try {
+                var response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, level: 'normal' })
+                });
+                var data = await response.json().catch(function () { return {}; });
+                if (!response.ok) {
+                    throw new Error(data.detail || ('HTTP ' + response.status));
+                }
+                chatBox.insertAdjacentHTML('beforeend', '<p><b>AI：</b>' + esc(data.reply) + '</p>');
+            } catch (err) {
+                chatBox.insertAdjacentHTML('beforeend', '<p style="color:#c62828;"><b>出错了：</b>' + esc(err.message) + '</p>');
+            } finally {
+                btn.disabled = false;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                input.focus();
+            }
         }
 
         async function runScan() {
-            var url = document.getElementById('scanUrl').value;
+            var input = document.getElementById('scanUrl');
+            var btn = document.getElementById('scanBtn');
+            var url = input.value.trim();
             if (url === '') return;
 
             var box = document.getElementById('scanResults');
-            box.innerHTML = '<div class="card scanning"><span class="spinner"></span>正在扫描 <b>' + esc(url) + '</b>...<div class="progress-wrap"><div class="progress-fill"></div></div></div>';
+            box.innerHTML = '<div class="card scanning"><span class="spinner"></span>正在扫描 <b>' + esc(url) +
+                '</b>...<div class="progress-wrap"><div class="progress-fill"></div></div></div>';
+            btn.disabled = true;
+            btn.textContent = '扫描中';
 
-            var start = Date.now();
-            var resp = await fetch('/api/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url })
-            });
-            var data = await resp.json();
-            window.lastScan = data;
-            var elapsed = ((Date.now() - start) / 1000).toFixed(1);
-            var html = '<div class="elapsed">检测耗时 ' + elapsed + ' 秒 &nbsp;<button class="report-btn" onclick="downloadReport()">下载报告</button></div>';
-            html += '<div class="card"><h3>扫描目标</h3><p style="color:#666;word-break:break-all;">' + esc(data.target) + '</p></div>';
-
-            var findings = data.findings;
-            if (Array.isArray(findings)) {
-                html += '<div class="card"><h3>安全头检测</h3>';
-                for (var i = 0; i < findings.length; i++) {
-                    var f = findings[i];
-                    var label = f.severity === 'high' ? '高危' : (f.severity === 'medium' ? '中危' : '低危');
-                    html += '<div class="finding"><span class="badge ' + esc(f.severity) + '">' + label + '</span><b>' + esc(f.name) + '</b> — ' + esc(f.desc) + '</div>';
+            try {
+                var resp = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+                var data = await resp.json().catch(function () { return {}; });
+                if (!resp.ok) {
+                    throw new Error(data.detail || ('HTTP ' + resp.status));
                 }
-                html += '</div>';
 
-                var stats = data.stats;
-                if (stats && (stats.high || stats.medium || stats.low)) {
-                    html += '<div class="card"><h3>风险统计</h3><div class="stat-row">';
-                    if (stats.high) html += '<span class="stat-item stat-high">高危 ' + stats.high + '</span>';
-                    if (stats.medium) html += '<span class="stat-item stat-medium">中危 ' + stats.medium + '</span>';
-                    if (stats.low) html += '<span class="stat-item stat-low">低危 ' + stats.low + '</span>';
-                    html += '</div></div>';
+                window.lastScan = data;
+                var html = renderSummary(data);
+                var keys = Object.keys(data.modules || {});
+                for (var i = 0; i < keys.length; i++) {
+                    var mod = data.modules[keys[i]];
+                    html += renderModule(mod, (data.empty_text || {})[keys[i]]);
                 }
-            } else {
-                var errMsg = findings && findings.error ? findings.error : '检测失败';
-                html += '<div class="card"><h3>安全头检测</h3><p class="result-empty">检测失败：' + esc(errMsg) + '</p></div>';
+                box.innerHTML = html;
+                input.value = '';
+            } catch (err) {
+                box.innerHTML = '<div class="card banner"><p>扫描失败：' + esc(err.message) +
+                    '</p><p class="result-empty">如果是冷启动，请等待 30-50 秒后重试。</p></div>';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '扫描';
             }
-
-            html += '<div class="card"><h3>敏感文件</h3>';
-            var exposed = data.exposed;
-            if (exposed && exposed.length > 0) {
-                for (var j = 0; j < exposed.length; j++) {
-                    html += '<div class="result-item">⚠️ ' + esc(exposed[j].url) + '</div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现暴露的文件</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>XSS 反射测试</h3>';
-            var xssData = data.check_xss;
-            if (xssData && xssData.length > 0) {
-                for (var k = 0; k < xssData.length; k++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>' + esc(xssData[k].type) + ' — payload: <code>' + esc(xssData[k].payload) + '</code></div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现反射型 XSS</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>SQL 注入检测</h3>';
-            var sqliData = data.check_sqli;
-            if (sqliData && sqliData.length > 0) {
-                for (var m = 0; m < sqliData.length; m++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>' + esc(sqliData[m].type) + ' — payload: <code>' + esc(sqliData[m].payload) + '</code> — ' + esc(sqliData[m].signature) + '</div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现 SQL 注入</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>端口扫描</h3>';
-            var portData = data.check_open_ports;
-            if (portData && portData.length > 0) {
-                for (var n = 0; n < portData.length; n++) {
-                    html += '<div class="result-item">🔓 端口 ' + esc(portData[n].port) + ' — 开放</div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现开放端口</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>Cookie 安全检测</h3>';
-            var cookieData = data.check_cookie_flags;
-            if (cookieData && cookieData.length > 0) {
-                for (var o = 0; o < cookieData.length; o++) {
-                    html += '<div class="finding"><span class="badge medium">中危</span>缺少 <b>' + esc(cookieData[o].flag) + '</b></div>';
-                }
-            } else {
-                html += '<p class="result-empty">Cookie 安全标记正常</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>开放式重定向检测</h3>';
-            var redirectData = data.check_redirect_trap;
-            if (redirectData && redirectData.length > 0) {
-                for (var p = 0; p < redirectData.length; p++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>参数 <b>' + esc(redirectData[p].param) + '</b> 可被重定向至 <code>' + esc(redirectData[p].location) + '</code></div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现开放式重定向</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>目录遍历检测</h3>';
-            var traversalData = data.check_path_traversal;
-            if (traversalData && traversalData.length > 0) {
-                for (var q = 0; q < traversalData.length; q++) {
-                    html += '<div class="finding"><span class="badge high">高危</span>payload: <code>' + esc(traversalData[q].payload) + '</code> — 命中: ' + esc(traversalData[q].signature) + '</div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现目录遍历漏洞</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>CORS 跨域检测</h3>';
-            var corsData = data.check_cors_misconfig;
-            if (corsData && corsData.length > 0) {
-                for (var r = 0; r < corsData.length; r++) {
-                    html += '<div class="finding"><span class="badge medium">中危</span>允许所有来源访问 — <code>' + esc(corsData[r].value) + '</code></div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现 CORS 配置错误</p>';
-            }
-            html += '</div>';
-
-            html += '<div class="card"><h3>HTTP 方法检测</h3>';
-            var optionData = data.check_option;
-            if (optionData && optionData.length > 0) {
-                for (var s = 0; s < optionData.length; s++) {
-                    html += '<div class="finding"><span class="badge medium">中危</span>允许危险方法 — <code>' + esc(optionData[s].value) + '</code></div>';
-                }
-            } else {
-                html += '<p class="result-empty">未发现危险 HTTP 方法</p>';
-            }
-            html += '</div>';
-
-            var timeouts = [];
-            if (data.findings && data.findings._timeout) timeouts.push(data.findings.module);
-            if (data.exposed && data.exposed._timeout) timeouts.push(data.exposed.module);
-            if (data.check_xss && data.check_xss._timeout) timeouts.push(data.check_xss.module);
-            if (data.check_sqli && data.check_sqli._timeout) timeouts.push(data.check_sqli.module);
-            if (data.check_open_ports && data.check_open_ports._timeout) timeouts.push(data.check_open_ports.module);
-            if (data.check_cookie_flags && data.check_cookie_flags._timeout) timeouts.push(data.check_cookie_flags.module);
-            if (data.check_redirect_trap && data.check_redirect_trap._timeout) timeouts.push(data.check_redirect_trap.module);
-            if (data.check_path_traversal && data.check_path_traversal._timeout) timeouts.push(data.check_path_traversal.module);
-            if (data.check_cors_misconfig && data.check_cors_misconfig._timeout) timeouts.push(data.check_cors_misconfig.module);
-            if (data.check_option && data.check_option._timeout) timeouts.push(data.check_option.module);
-            if (timeouts.length > 0) {
-                html = '<div class="card" style="border-left:3px solid #e65100;"><p>⚠️ 检测超时：' + esc(timeouts.join(', ')) + '</p></div>' + html;
-            }
-
-            box.innerHTML = html;
-            document.getElementById('scanUrl').value = '';
         }
+
         function downloadReport() {
             if (!window.lastScan) return;
             var text = JSON.stringify(window.lastScan, null, 2);
@@ -286,21 +330,44 @@
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'scan-report-' + Date.now() + '.json';
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(a.href);
+            // 先移除节点再释放 URL，避免部分浏览器取消下载
+            setTimeout(function () {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            }, 0);
         }
+
         function toggleTheme() {
-            var html = document.documentElement;
+            var root = document.documentElement;
             var btn = document.querySelector('.theme-btn');
-            var current = html.getAttribute('data-theme');
-            if (current === 'dark') {
-                html.removeAttribute('data-theme');
+            if (root.getAttribute('data-theme') === 'dark') {
+                root.removeAttribute('data-theme');
                 btn.textContent = '🌙';
+                try { localStorage.setItem('theme', 'light'); } catch (e) { /* 隐私模式下忽略 */ }
             } else {
-                html.setAttribute('data-theme', 'dark');
+                root.setAttribute('data-theme', 'dark');
                 btn.textContent = '☀️';
+                try { localStorage.setItem('theme', 'dark'); } catch (e) { /* 隐私模式下忽略 */ }
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.querySelector('.theme-btn').textContent = '☀️';
+                }
+            } catch (e) { /* localStorage 不可用时保持浅色 */ }
+
+            document.getElementById('userInput').addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') sendMSG();
+            });
+            document.getElementById('scanUrl').addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') runScan();
+            });
+        });
     </script>
 </body>
 
