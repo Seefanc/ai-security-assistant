@@ -2,7 +2,9 @@
 
 [![CI](https://github.com/Seefanc/ai-security-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Seefanc/ai-security-assistant/actions/workflows/ci.yml)
 
-🔗 **在线体验**：https://ai-security-assistant-toi6.onrender.com/static/index.html
+🔗 **在线体验**：https://ai-security-assistant-toi6.onrender.com/
+
+当前版本 **v1.1.0**（线上已验证：10 个模块全部可用，扫描 example.com 约 5.6 秒）
 
 输入一个网址，自动检测 10 类常见 Web 配置问题，并把结果整理成卡片 + 可下载的 JSON 报告；同时集成 DeepSeek 做安全问答。
 
@@ -100,7 +102,7 @@ uvicorn server:app --reload
 - 改造前：10 个模块串行，单次扫描 **51 秒**（测试目标 httpbin.org，本身响应偏慢）
 - 改造后：`asyncio.to_thread` + `gather` 并发，同样目标 **11 秒**，约 **4.6 倍**
 - 每个模块独立 10 秒超时 + 异常隔离，单模块失败不影响其它模块
-- 以公开站点实测（example.com，本机直连）：整轮约 6 秒，最慢的是端口模块
+- 以公开站点实测（example.com）：本机直连约 6 秒；线上 Render 免费实例约 **5.6 秒**（最慢的仍是端口模块）
 
 > 说明：4.6 倍是相对 httpbin 这种慢站点测得；对响应快的站点，串行耗时本身就低，倍率会小一些。
 
@@ -131,7 +133,33 @@ python -m pytest -q
 
 仓库自带 `render.yaml`（Blueprint）：新建 Blueprint → 关联仓库 → 在控制台填入 `DEEPSEEK_API_KEY` 即可。
 
+部署后用两个判据确认新版本真的生效（旧版本这两个都返回 404）：
+
+```bash
+curl -s https://<你的服务>.onrender.com/api/health   # 期望返回 {"status":"ok","version":"1.1.0",...}
+curl -s -o /dev/null -w '%{http_code}\n' https://<你的服务>.onrender.com/   # 期望 307
+```
+
+渲染平台建议在 Settings → Build & Deploy 打开 **Auto-Deploy**，否则每次 `git push` 后都要手动点一次 Manual Deploy。
+
+## 更新记录
+
+**v1.1.0（2026-10）**
+
+- 修复扫描接口的 SSRF 风险：新增目标校验，拒绝内网/回环/云元数据地址，关闭自动跳转绕过
+- 新增每 IP 滑动窗口限流；问答消息与 URL 长度限制
+- 修复检测误报：端口改 TCP 探测、Cookie 按 Set-Cookie 逐条判断、目录遍历改组合特征、SQL 注入加基线对比、移除 robots.txt 误报
+- 模块结果改为 `{status, items, error}`，前端区分「未发现」与「超时/失败」
+- 补充 62 个 pytest 用例与 GitHub Actions CI，依赖加上版本约束
+- 新增 `GET /api/health`、根路径跳转、声明式部署配置
+
+**v1.0.0（2026-06 ~ 2026-10）**
+
+- 10 个检测模块、单页前端、DeepSeek 问答、asyncio 并发优化（51s → 11s）、Render 上线
+
 ## 截图
+
+> 截图为 v1.0 界面；v1.1 在每个模块卡片右上角增加了「完成 / 超时 / 失败」状态标签与模块耗时。
 
 ![](screenshot-new.png)
 
