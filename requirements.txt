@@ -1,5 +1,6 @@
-fastapi
-uvicorn
-openai
-requests
-python-dotenv
+# 运行依赖（带版本上限，保证构建可复现、又不会长期卡在旧版本）
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+openai>=1.40,<3.0
+requests>=2.32,<3.0
+python-dotenv>=1.0,<2.0
